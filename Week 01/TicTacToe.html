@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TicTacToe</title>
+  <style>
+    .ceil{
+      display: inline-block;
+      background-color: grey;
+      border: 2px solid #fff;
+      width: 100px;
+      height: 100px;
+      vertical-align: middle;
+      font-size: 50px;
+      text-align: center;
+      line-height: 100px;
+    }
+
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    // 1为X， 2为O ⭕️❌
+    let chessboard = [
+      0, 0, 0,
+      0, 0, 0,
+      0, 0, 0
+    ]
+    const textObj = {
+      1: '⭕️',
+      2: '❌'
+    }
+    let now = 1 // 定义谁下 1 圈 2X
+
+    for (let i = 0;i < 3; i++) {
+      for (let j = 0;j < 3; j++) {
+        const index = i * 3 + j
+        let dom = document.createElement('div')
+        dom.id = index
+        dom.classList.add('ceil')
+        if (chessboard[index]) {
+          dom.innerHTML = textObj[chessboard[index]]
+        }
+        // 不直接用 上面定义的index 是为了避免 变量被闭包
+        dom.addEventListener('click', (e) => {
+          let domIndex = e.target.id
+          if (!dom.innerHTML) {
+            dom.innerHTML = textObj[now]
+            chessboard[domIndex] = now
+            let isWin = checkWinner(chessboard, now)
+            if (isWin) {
+              alert(textObj[now] + ' is Winner ！')
+              return
+            }
+            let res = getWin(chessboard, now)
+            document.getElementsByClassName('ceil')[res.point].innerHTML = textObj[3 - now]
+            chessboard[res.point] = 3 - now
+            console.log(res)
+          }
+        })
+        document.getElementById('root').appendChild(dom)
+      }
+      document.getElementById('root').appendChild(document.createElement('br'))
+    }
+    
+    function checkWinner (chessboard, now) {
+      const nowText = textObj[now]
+      {
+        for (let i = 0;i < 3; i++) {
+          let winner = true
+          for (let j = 0; j < 3; j++) {
+            if (chessboard[i*3 + j] !== now) {
+              winner = false
+              continue
+            }
+          }
+          if (winner) {
+            return true
+          }
+        }
+      }
+
+      {
+        for (let i = 0;i < 3; i++) {
+          let winner = true
+          for (let j = 0; j < 3; j++) {
+            if (chessboard[j*3 + i] !== now) {
+              winner = false
+              continue
+            }
+          }
+          if (winner) {
+            return true
+          }
+        }
+      }
+
+      {
+        let winner = true
+        for (let i = 0; i < 3; i++) {
+          if (chessboard[i*3 + i] !== now) {
+            winner = false
+            break
+          }
+        }
+        if (winner) {
+          return true
+        }
+      }
+
+      {
+        let winner = true
+        for (let i = 0; i < 3; i++) {
+          if (chessboard[i*3 + (2 - i)] !== now) {
+            winner = false
+            break
+          }
+        }
+        if (winner) {
+          return true
+        }
+      }
+
+      return false
+    }
+
+    function willWin (chessboard, now) {
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          if (chessboard[i*3 + j]) {
+            continue
+          }
+          let tempBoard = clone(chessboard)
+          tempBoard[i*3 + j] = now
+          if (checkWinner(tempBoard, now)) {
+            return i*3 + j
+          }
+        }
+      }
+      return null
+    }
+
+    function clone (item) {
+      return Object.create(item)
+    }
+    function getWin (chessboard, now) {
+      let point = willWin(chessboard, now)
+      if (point) {
+        return {
+          point,
+          result: 1
+        }
+      }
+      let result = -2
+      point = null
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          if (chessboard[i*3 + j]) {
+            continue
+          }
+          let tempBoard = clone(chessboard)
+          tempBoard[i*3 + j] = now
+          let res = getWin(tempBoard, 3-now).result
+          if (- res > result) {
+            result = - res
+            point = j*3 + i
+          }
+        }
+      }
+      return {
+        point,
+        result: point ? result : 0
+      }
+    }
+
+
+  </script>
+</body>
+</html>

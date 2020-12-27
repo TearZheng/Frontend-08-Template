@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>traffic_light</title>
+  <style>
+    #light1,#light2,#light3{
+      display: inline-block;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin-right: 20px;
+      background-color: gray;
+    }
+    .red{
+      background: red !important;
+    }
+    .green{
+      background-color: green !important;
+    }
+    .yellow{
+      background-color: yellow !important;
+    }
+    
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div id="light1"></div>
+    <div id="light2"></div>
+    <div id="light3"></div>
+  </div>
+  <script>
+    // 灯顺序 红 黄 绿   绿10s 黄2s 红5s
+    const greenTime = 10000
+    const yellowTime = 2000
+    const redTime = 5000
+    const light1 = document.getElementById('light1')
+    const light2 = document.getElementById('light2')
+    const light3 = document.getElementById('light3')
+    function light (light, color, time) {
+      return new Promise(resolve => {
+        light.classList.add(color)
+        setTimeout(() => {
+          light.classList.remove(color)
+          resolve()
+        }, time)
+      })
+    }
+    function main () {
+      light(light3, 'green', greenTime).then(() => {
+        light(light2, 'yellow', yellowTime).then(() => {
+          light(light1, 'red', redTime).then(() => {
+            main()
+          })
+        })
+      })
+    }
+    main()
+  </script>
+  
+</body>
+</html>
