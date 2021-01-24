@@ -1,0 +1,74 @@
+<input type="range" id="r" min="0" max="255">
+<input type="range" id="g" min="0" max="255">
+<input type="range" id="b"min="0" max="255">
+<div id="color" style="width: 100px;height: 100px;"></div>
+<script>
+
+let usedReactiveties = []
+
+// 为什么老师需要一个全局的变量map 去存obj对应的 reactive 没用上呀。。
+let callbacks = new Map()
+
+let object = {
+  r: 0,
+  g: 0,
+  b: 0
+}
+object = reactive(object)
+
+effect(() => {
+  document.getElementById('r').value = object.r
+})
+
+effect(() => {
+  document.getElementById('g').value = object.g
+})
+
+effect(() => {
+  document.getElementById('b').value = object.b
+})
+
+effect(() => {
+  document.getElementById('color').style.backgroundColor = `rgb(${object.r},${object.g},${object.b})`
+})
+
+document.getElementById('r').addEventListener('input', event => object.r = event.target.value)
+
+document.getElementById('g').addEventListener('input', event => object.g = event.target.value)
+
+document.getElementById('b').addEventListener('input', event => object.b = event.target.value)
+
+function effect (callback) {
+  usedReactiveties = []
+  callback()
+  console.log('调用effect')
+  for (let used of usedReactiveties) {
+    if (!callbacks.has(used[0])) 
+      callbacks.set(used[0], new Map())
+    if (!callbacks.get(used[0]).has(used[1]))
+      callbacks.get(used[0]).set(used[1], [])
+    callbacks.get(used[0]).get(used[1]).push(callback)
+  }
+}
+
+function reactive (obj) {
+  return new Proxy(obj, {
+    get (obj, attr) {
+      usedReactiveties.push([obj, attr])
+      if (typeof obj[attr] === 'object')
+        return reactive(obj[attr])
+      return obj[attr]
+    },
+    set (obj, attr, value) {
+      obj[attr] = value
+      if (callbacks.has(obj))
+        if (callbacks.get(obj).has(attr))
+          for (let callback of callbacks.get(obj).get(attr)) {
+            callback()
+          }
+      return obj
+    }
+  })
+}
+
+</script>

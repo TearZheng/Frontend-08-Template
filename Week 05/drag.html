@@ -1,0 +1,62 @@
+
+<div id="container" style="user-select:none;">
+  哈哈 哈哈 哈哈 哈哈 哈哈 哈哈 
+  哈哈 哈哈 哈哈 哈哈 哈哈 哈哈 
+  哈哈 哈哈 哈哈 哈哈 哈哈 哈哈 
+  哈哈 哈哈 哈哈 哈哈 哈哈 哈哈 
+  哈哈 哈哈 哈哈 哈哈 哈哈 哈哈 
+  哈哈 哈哈 哈哈 哈哈 哈哈 哈哈 
+  哈哈 哈哈 哈哈 哈哈 哈哈 哈哈 
+  哈哈 哈哈 哈哈 哈哈 哈哈 哈哈 
+  哈哈 哈哈 哈哈 哈哈 哈哈 哈哈 
+  哈哈 哈哈 哈哈 哈哈 哈哈 哈哈 
+  哈哈 哈哈 哈哈 哈哈 哈哈 哈哈 
+  哈哈 哈哈 哈哈 哈哈 哈哈 哈哈     
+</div>
+<div id="drag" style="display:inline-block;height: 20px;width: 20px;background-color: red;"></div>
+<script>
+  const dom = document.getElementById('drag')
+  let endX = 0, endY = 0
+  dom.addEventListener('mousedown', event => {
+    const startX = event.clientX, startY = event.clientY
+    const up = event => {
+      endX = event.clientX - startX + endX
+      endY = event.clientY - startY + endY
+      document.removeEventListener('mouseup', up)
+      document.removeEventListener('mousemove', move)
+    }
+    const move = event => {
+      // dom.style.transform = `translate(${event.clientX - startX + endX}px, ${event.clientY - startY + endY}px)`
+      const { clientX, clientY } = event
+      let range = getNearst(clientX, clientY)
+      range.insertNode(dom)
+    }
+    document.addEventListener('mouseup', up)
+    document.addEventListener('mousemove', move)
+  })
+
+  const container = document.getElementById('container')
+  let ranges = []
+  for (let i = 0;i < container.childNodes[0].textContent.length; i++) {
+    let range = document.createRange()
+    range.setStart(container.childNodes[0], i)
+    range.setEnd(container.childNodes[0], i)
+    ranges.push(range)
+  }
+
+  function getNearst (x, y) {
+    let min = Infinity
+    let nearst = null
+    for (let range of ranges) {
+      let { x: rectX, y: rectY } = range.getBoundingClientRect()
+      let distance = (rectX - x) ** 2 + (rectY - y) ** 2
+      if (distance < min) {
+        min = distance
+        nearst = range
+      }
+    }
+    return nearst
+  }
+
+
+</script>
